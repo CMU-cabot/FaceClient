@@ -1,0 +1,19 @@
+<resources>
+
+    <style name="AppTheme" parent="HudTheme">
+        <!-- Customize your theme here. -->
+
+    </style>
+
+    <style name="AppTheme_Light" parent="HudTheme.Light">
+        <!-- Customize your theme here. -->
+
+    </style>
+
+    <style name="Widget.CameraView" parent="android:Widget">
+        <item name="android:adjustViewBounds">false</item>
+        <item name="previewSize">640x480</item>
+        <item name="pictureSize">640x480</item>
+    </style>
+
+</resources>
