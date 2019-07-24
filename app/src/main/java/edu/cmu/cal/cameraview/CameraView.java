@@ -154,11 +154,13 @@ class PreviewSurface extends SurfaceView implements SurfaceHolder.Callback {
             sbPreviewSize.append(" " + size.width + "x" + size.height);
         }
         Log.d(TAG, "Supported preview size:" + sbPreviewSize);
+        // Supported preview size: 176x144 320x240 640x480 720x480 800x480 1280x720 1920x1080
         StringBuffer sbPictureSize = new StringBuffer();
         for (Camera.Size size : params.getSupportedPictureSizes()) {
             sbPictureSize.append(" " + size.width + "x" + size.height);
         }
         Log.d(TAG, "Supported picture size:" + sbPictureSize);
+        // Supported picture size: 640x480 1600x1200 2048x1536 2592x1944 3264x2448
         if (previewSize != null) {
             params.setPreviewSize(previewSize[0], previewSize[1]);
         }
