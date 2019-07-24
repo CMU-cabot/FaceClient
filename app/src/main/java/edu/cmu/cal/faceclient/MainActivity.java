@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -35,6 +36,7 @@ public class MainActivity extends ActionMenuActivity {
     private CameraView mCameraView;
     private TextView mInfoView;
     private Handler mHandler, mBackgroundHandler;
+    private TextToSpeech mTTS;
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -50,7 +52,9 @@ public class MainActivity extends ActionMenuActivity {
         @Override
         public void onPictureTaken(final CameraView cameraView, final byte[] data) {
             Log.d(TAG, "onPictureTaken " + data.length);
-            mInfoView.setText("Processing picture...");
+            String message = "Processing picture...";
+            mInfoView.setText(message);
+            mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
             mBackgroundHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -68,6 +72,7 @@ public class MainActivity extends ActionMenuActivity {
                         @Override
                         public void run() {
                             mInfoView.setText(message);
+                            mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
                         }
                     });
                     if (--mTakeCounter > 0) {
@@ -96,6 +101,19 @@ public class MainActivity extends ActionMenuActivity {
         mInfoView = findViewById(R.id.info);
         if (mCameraView != null) {
             mCameraView.addCallback(mCallback);
+        }
+        mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mTTS != null) {
+            mTTS.shutdown();
         }
     }
 
