@@ -34,7 +34,7 @@ public abstract class AbstractFaceServer {
         int statusCode = response.getStatusCode();
         String str = response.parseAsString();
         Log.d("AbstractFaceServer", statusCode + ": " + str);
-        return lastResult = statusCode == 200 ? new JSONObject(str) : new JSONObject().put("error", statusCode);
+        return lastResult = statusCode == 200 ? new JSONObject(str) : new JSONObject().put("error", statusCode).put("content", str);
     }
 
     public final JSONObject getResultJSON() {
