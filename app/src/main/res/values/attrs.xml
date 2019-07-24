@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CameraView">
+        <!-- Supported preview size: 176x144 320x240 640x480 720x480 800x480 1280x720 1920x1080 -->
         <attr name="previewSize" format="string" />
+        <!-- Supported picture size: 640x480 1600x1200 2048x1536 2592x1944 3264x2448 -->
         <attr name="pictureSize" format="string" />
     </declare-styleable>
 </resources>
