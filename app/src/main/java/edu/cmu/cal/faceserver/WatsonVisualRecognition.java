@@ -43,7 +43,7 @@ public class WatsonVisualRecognition extends AbstractFaceServer {
                     for (int i = 0; i < faces.length(); i++) {
                         JSONObject gender = faces.optJSONObject(i).optJSONObject("gender");
                         JSONObject age = faces.optJSONObject(i).optJSONObject("age");
-                        sb.append(String.format("\n%s. %s to %s years old.\n", gender.opt("gender_label"), age.opt("min"), age.opt("max")));
+                        sb.append(String.format("\n%s, %s to %s years old.\n", gender.opt("gender_label"), age.opt("min"), age.opt("max")));
 //                        sb.append(String.format("score: gender %s, age %s.\n", gender.opt("score"), age.opt("score")));
                     }
                 }
