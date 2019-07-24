@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Face Client</string>
+    <string name="camera_permission_title">Camera Permission</string>
+    <string name="camera_permission_message">This application needs access to your camera so you can find peoples.</string>
 </resources>

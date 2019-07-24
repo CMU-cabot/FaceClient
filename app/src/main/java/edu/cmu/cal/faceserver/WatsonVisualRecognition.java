@@ -1,34 +1,57 @@
 package edu.cmu.cal.faceserver;
 
-import android.util.Log;
-
 import com.google.api.client.http.BasicAuthentication;
-import com.google.api.client.http.ByteArrayContent;
-import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.MultipartContent;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class WatsonVisualRecognition extends AbstractFaceServer {
-    private static final String watson_apikey = "0ZG50T7jhQYjHcPbvSQr5f2q7TIQqyX0JQD_AWYbT6xN";
-    private static final GenericUrl watson_url = new GenericUrl("https://gateway.watsonplatform.net/visual-recognition/api/v3/detect_faces?version=2018-03-19");
+    private static final String url = "https://gateway.watsonplatform.net/visual-recognition/api/v3/detect_faces?version=2018-03-19";
+    private static final String key = "0ZG50T7jhQYjHcPbvSQr5f2q7TIQqyX0JQD_AWYbT6xN";
+    private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"images_file\"; filename=\"picture.jpg\"");
+
+    public WatsonVisualRecognition() {
+        super(url);
+    }
 
     @Override
-    JSONObject process(MultipartContent content, byte[] data) throws Exception {
-        HttpHeaders partHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"images_file\"; filename=\"picture.jpg\"");
-        content.addPart(new MultipartContent.Part(partHeaders, new ByteArrayContent("image/jpeg", data)));
-        HttpRequest request = mRequestFactory.buildPostRequest(watson_url, content).setInterceptor(new BasicAuthentication("apikey", watson_apikey));
-        HttpResponse response = request.execute();
-        JSONObject result = new JSONObject().put("status", response.getStatusCode());
-        if (response.getStatusCode() == 200) {
-            String str = response.parseAsString();
-            Log.d("WatsonVisualRecognition", str);
-            result = new JSONObject(str);
+    protected void addFormData(MultipartContent content, HttpContent imageContent) {
+        content.addPart(new MultipartContent.Part(imageHeaders, imageContent));
+    }
+
+    @Override
+    protected void addExtra(HttpRequest request) {
+        request.setInterceptor(new BasicAuthentication("apikey", key));
+    }
+
+    @Override
+    public String getSpeakText() {
+        JSONObject json = getResultJSON();
+        StringBuffer sb = new StringBuffer();
+        sb.append("No faces detected.\n");
+        if (json != null) {
+            JSONArray images = json.optJSONArray("images");
+            if (images != null && images.length() > 0) {
+                JSONArray faces = images.optJSONObject(0).optJSONArray("faces");
+                if (faces != null && faces.length() > 0) {
+                    sb.setLength(0);
+                    if (faces.length() > 1) {
+                        sb.append(faces.length() + " faces detected.\n");
+                    }
+                    for (int i = 0; i < faces.length(); i++) {
+                        JSONObject gender = faces.optJSONObject(i).optJSONObject("gender");
+                        JSONObject age = faces.optJSONObject(i).optJSONObject("age");
+                        sb.append(String.format("\n%s. %s to %s years old\n", gender.opt("gender_label"), age.opt("min"), age.opt("max")));
+                        sb.append(String.format("score: gender %s, age %s\n", gender.opt("score"), age.opt("score")));
+                    }
+                }
+            }
         }
-        return result;
+        return sb.toString();
     }
 }
 

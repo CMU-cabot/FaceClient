@@ -57,7 +57,8 @@ public class MainActivity extends ActionMenuActivity {
                     String str;
                     try {
                         JSONObject result = processPicture(cameraView, data);
-                        str = result.toString(2);
+//                        str = result.toString(2);
+                        str = faceServer.getSpeakText();
                     } catch (Exception e) {
                         e.printStackTrace();
                         str = e.toString();
@@ -142,8 +143,8 @@ public class MainActivity extends ActionMenuActivity {
 
     private void showPermissionDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("title")
-                .setMessage("message")
+                .setTitle(R.string.camera_permission_title)
+                .setMessage(R.string.camera_permission_message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
