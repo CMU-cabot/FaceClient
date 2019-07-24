@@ -32,13 +32,11 @@ public class WatsonVisualRecognition extends AbstractFaceServer {
     public String getSpeakText() {
         JSONObject json = getResultJSON();
         StringBuffer sb = new StringBuffer();
-        sb.append("No faces detected.\n");
         if (json != null) {
             JSONArray images = json.optJSONArray("images");
             if (images != null && images.length() > 0) {
                 JSONArray faces = images.optJSONObject(0).optJSONArray("faces");
                 if (faces != null && faces.length() > 0) {
-                    sb.setLength(0);
                     if (faces.length() > 1) {
                         sb.append(faces.length() + " faces detected.\n");
                     }

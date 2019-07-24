@@ -55,7 +55,7 @@ public class MainActivity extends ActionMenuActivity {
         @Override
         public void onPictureTaken(final CameraView cameraView, final byte[] data) {
             Log.d(TAG, "onPictureTaken " + data.length);
-            String message = "Processing picture...";
+            String message = getString(R.string.processing);
             mInfoView.setText(message);
             mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
             mBackgroundHandler.post(new Runnable() {
@@ -66,6 +66,9 @@ public class MainActivity extends ActionMenuActivity {
                         JSONObject result = processPicture(cameraView, data);
 //                        str = result.toString(2);
                         str = faceServer.getSpeakText();
+                        if (str.isEmpty()) {
+                            str = getString(R.string.no_faces);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                         str = e.toString();
