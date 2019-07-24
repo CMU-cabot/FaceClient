@@ -31,6 +31,7 @@ public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1, TAKE_COUNT = 1, TAKE_DELAY = 3 * 1000;
+    MenuItem mDetectMenu;
     private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private int mTakeCounter = 0;
     private CameraView mCameraView;
@@ -73,6 +74,9 @@ public class MainActivity extends ActionMenuActivity {
                         public void run() {
                             mInfoView.setText(message);
                             mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
+                            if (mTakeCounter < 2) {
+                                mDetectMenu.setEnabled(true);
+                            }
                         }
                     });
                     if (--mTakeCounter > 0) {
@@ -141,6 +145,7 @@ public class MainActivity extends ActionMenuActivity {
     protected boolean onCreateActionMenu(Menu menu) {
         super.onCreateActionMenu(menu);
         getMenuInflater().inflate(R.menu.menu, menu);
+        mDetectMenu = menu.findItem(R.id.detect_menu);
         return true;
     }
 
@@ -155,6 +160,7 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     public void onDetectMenu(MenuItem item) {
+        mDetectMenu.setEnabled(false);
         mTakeCounter = TAKE_COUNT;
         mCameraView.takePicture();
     }
