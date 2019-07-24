@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.vuzix.hud.actionmenu.ActionMenuActivity;
@@ -113,6 +114,7 @@ public class MainActivity extends ActionMenuActivity {
             }
         });
         takeKeyEvents(true);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
