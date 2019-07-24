@@ -11,6 +11,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -111,6 +112,15 @@ public class MainActivity extends ActionMenuActivity {
             public void onInit(int i) {
             }
         });
+        takeKeyEvents(true);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) & mDetectMenu.isEnabled()) {
+            onDetectMenu(mDetectMenu);
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
