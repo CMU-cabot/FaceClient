@@ -15,6 +15,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import org.json.JSONObject;
 
 public abstract class AbstractFaceServer {
+    private static final String TAG = "FaceServer";
     private final GenericUrl url;
     private final HttpRequestFactory mRequestFactory = (new NetHttpTransport()).createRequestFactory();
     private final HttpMediaType mediaType = new HttpMediaType("multipart/form-data").setParameter("boundary", "__END_OF_PART__");
@@ -25,15 +26,18 @@ public abstract class AbstractFaceServer {
     }
 
     public final JSONObject process(byte[] data) throws Exception {
+        long t0 = System.nanoTime();
         MultipartContent content = new MultipartContent().setMediaType(mediaType);
         HttpContent imageContent = new ByteArrayContent("image/jpeg", data);
         addFormData(content, imageContent);
+        long t1 = System.nanoTime();
         HttpRequest request = mRequestFactory.buildPostRequest(url, content);
         addExtra(request);
         HttpResponse response = request.execute();
         int statusCode = response.getStatusCode();
+        long t2 = System.nanoTime();
         String str = response.parseAsString();
-        Log.d("AbstractFaceServer", statusCode + ": " + str);
+        Log.d(TAG, String.format("elapsed=%,dns, size=%,dbytes, status=%d\n%s", t2 - t1, data.length, statusCode, str));
         return lastResult = statusCode == 200 ? new JSONObject(str) : new JSONObject().put("error", statusCode).put("content", str);
     }
 
