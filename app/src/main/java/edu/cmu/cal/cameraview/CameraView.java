@@ -73,6 +73,7 @@ public class CameraView extends FrameLayout {
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
+                mCamera.startPreview();
                 for (Callback callback : mCallbacks) {
                     callback.onPictureTaken(CameraView.this, data);
                 }
