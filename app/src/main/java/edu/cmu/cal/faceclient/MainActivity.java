@@ -125,7 +125,7 @@ public class MainActivity extends ActionMenuActivity {
         if ((keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) & mDetectMenu.isEnabled()) {
             onDetectMenu(mDetectMenu);
         }
-        return super.onKeyUp(keyCode, event);
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
