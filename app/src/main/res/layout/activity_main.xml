@@ -9,8 +9,8 @@
 
     <edu.cmu.cal.cameraview.CameraView
         android:id="@+id/camera"
-        android:layout_width="480px"
-        android:layout_height="360px"
+        android:layout_width="320dp"
+        android:layout_height="240dp"
         app:pictureSize="1600x1200" />
 
     <TextView
