@@ -32,7 +32,7 @@ import edu.cmu.cal.faceserver.WatsonVisualRecognition;
 public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_CAMERA_PERMISSION = 1, TAKE_COUNT = 2, TAKE_DELAY = 2 * 1000;
+    private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 3;
     MenuItem mDetectMenu;
     private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private int mTakeCounter = 0;
@@ -55,9 +55,6 @@ public class MainActivity extends ActionMenuActivity {
         @Override
         public void onPictureTaken(final CameraView cameraView, final byte[] data) {
             Log.d(TAG, "onPictureTaken " + data.length);
-            String message = getString(R.string.processing);
-            mInfoView.setText(message);
-            mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
             mBackgroundHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -70,12 +67,16 @@ public class MainActivity extends ActionMenuActivity {
                         if (str.isEmpty()) {
                             str = getString(R.string.no_faces);
                             if (mTakeCounter > 0) {
-                                mHandler.postDelayed(new Runnable() {
+                                mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         mCameraView.takePicture();
+                                        String message = getString(R.string.retrying);
+                                        mInfoView.setText(message);
+                                        mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
                                     }
-                                }, TAKE_DELAY);
+                                });
+                                return;
                             }
                         } else {
                             mTakeCounter = 0;
@@ -180,8 +181,11 @@ public class MainActivity extends ActionMenuActivity {
 
     public void onDetectMenu(MenuItem item) {
         mDetectMenu.setEnabled(false);
-        mTakeCounter = TAKE_COUNT;
+        mTakeCounter = MAX_TAKE_COUNT;
         mCameraView.takePicture();
+        String message = getString(R.string.taking);
+        mInfoView.setText(message);
+        mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     private void showPermissionDialog() {
