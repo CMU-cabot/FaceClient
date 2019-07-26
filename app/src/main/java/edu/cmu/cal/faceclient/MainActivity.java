@@ -32,7 +32,7 @@ import edu.cmu.cal.faceserver.WatsonVisualRecognition;
 public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_CAMERA_PERMISSION = 1, TAKE_COUNT = 1, TAKE_DELAY = 3 * 1000;
+    private static final int REQUEST_CAMERA_PERMISSION = 1, TAKE_COUNT = 2, TAKE_DELAY = 2 * 1000;
     MenuItem mDetectMenu;
     private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private int mTakeCounter = 0;
@@ -61,6 +61,7 @@ public class MainActivity extends ActionMenuActivity {
             mBackgroundHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    mTakeCounter--;
                     String str;
                     try {
                         JSONObject result = processPicture(cameraView, data);
@@ -68,23 +69,15 @@ public class MainActivity extends ActionMenuActivity {
                         str = faceServer.getSpeakText();
                         if (str.isEmpty()) {
                             str = getString(R.string.no_faces);
+                        } else {
+                            mTakeCounter = 0;
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         str = e.toString();
+                        mTakeCounter = 0;
                     }
-                    final String message = str;
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mInfoView.setText(message);
-                            mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
-                            if (mTakeCounter < 2) {
-                                mDetectMenu.setEnabled(true);
-                            }
-                        }
-                    });
-                    if (--mTakeCounter > 0) {
+                    if (mTakeCounter > 0) {
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -92,6 +85,17 @@ public class MainActivity extends ActionMenuActivity {
                             }
                         }, TAKE_DELAY);
                     }
+                    final String message = str;
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mInfoView.setText(message);
+                            mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
+                            if (mTakeCounter == 0) {
+                                mDetectMenu.setEnabled(true);
+                            }
+                        }
+                    });
                 }
             });
         }
