@@ -62,39 +62,28 @@ public class MainActivity extends ActionMenuActivity {
                     String str;
                     try {
                         JSONObject result = processPicture(cameraView, data);
-//                        str = result.toString(2);
                         str = faceServer.getSpeakText();
-                        if (str.isEmpty()) {
-                            str = getString(R.string.no_faces);
-                            if (mTakeCounter > 0) {
-                                mHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mCameraView.takePicture();
-                                        String message = getString(R.string.retrying);
-                                        mInfoView.setText(message);
-                                        mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
-                                    }
-                                });
-                                return;
-                            }
-                        } else {
-                            mTakeCounter = 0;
-                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                         str = e.toString();
+                    }
+                    if (str.isEmpty()) {
+                        str = getString(R.string.no_faces);
+                    } else {
                         mTakeCounter = 0;
                     }
                     final String message = str;
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mInfoView.setText(message);
-                            mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
-                            if (mTakeCounter <= 0) {
+                            if (mTakeCounter > 0) {
+                                showMessage(getString(R.string.retrying));
+                                mCameraView.takePicture();
+                            } else {
+                                showMessage(message);
                                 mDetectMenu.setEnabled(true);
                             }
+
                         }
                     });
                 }
@@ -182,8 +171,11 @@ public class MainActivity extends ActionMenuActivity {
     public void onDetectMenu(MenuItem item) {
         mDetectMenu.setEnabled(false);
         mTakeCounter = MAX_TAKE_COUNT;
+        showMessage(getString(R.string.taking));
         mCameraView.takePicture();
-        String message = getString(R.string.taking);
+    }
+
+    private void showMessage(String message) {
         mInfoView.setText(message);
         mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
     }
