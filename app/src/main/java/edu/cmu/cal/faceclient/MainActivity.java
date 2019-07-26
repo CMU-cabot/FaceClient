@@ -69,6 +69,14 @@ public class MainActivity extends ActionMenuActivity {
                         str = faceServer.getSpeakText();
                         if (str.isEmpty()) {
                             str = getString(R.string.no_faces);
+                            if (mTakeCounter > 0) {
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mCameraView.takePicture();
+                                    }
+                                }, TAKE_DELAY);
+                            }
                         } else {
                             mTakeCounter = 0;
                         }
@@ -77,21 +85,13 @@ public class MainActivity extends ActionMenuActivity {
                         str = e.toString();
                         mTakeCounter = 0;
                     }
-                    if (mTakeCounter > 0) {
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mCameraView.takePicture();
-                            }
-                        }, TAKE_DELAY);
-                    }
                     final String message = str;
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             mInfoView.setText(message);
                             mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
-                            if (mTakeCounter == 0) {
+                            if (mTakeCounter <= 0) {
                                 mDetectMenu.setEnabled(true);
                             }
                         }
