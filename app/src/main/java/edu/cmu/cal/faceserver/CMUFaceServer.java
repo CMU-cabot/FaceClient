@@ -58,10 +58,10 @@ public class CMUFaceServer extends AbstractFaceServer {
                     sb.append(String.format("%d years old,\n", age));
                 }
                 if (distance > 0) {
-                    sb.append(String.format("%.2f meters away,\n", distance));
+                    sb.append(String.format("%.1f meters away,\n", distance));
                 }
                 if (conf > 0) {
-                    sb.append(String.format("confidence %.2f%%.\n", conf * 100));
+                    sb.append(String.format("confidence %.1f%%.\n", conf * 100));
                 }
             }
         }
