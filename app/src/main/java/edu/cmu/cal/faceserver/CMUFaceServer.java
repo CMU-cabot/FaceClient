@@ -21,7 +21,7 @@ public class CMUFaceServer extends AbstractFaceServer {
         mParameters.put("uuid", "1234");
         mParameters.put("phase", "dev");
         mParameters.put("model", "insightface");
-        mParameters.put("mode", "detection");
+        mParameters.put("mode", "recognition");
     }
 
     @Override
