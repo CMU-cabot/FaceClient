@@ -27,14 +27,15 @@ import java.io.OutputStream;
 
 import edu.cmu.cal.cameraview.CameraView;
 import edu.cmu.cal.faceserver.AbstractFaceServer;
-import edu.cmu.cal.faceserver.WatsonVisualRecognition;
+import edu.cmu.cal.faceserver.CMUFaceServer;
 
 public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 3;
     MenuItem mDetectMenu;
-    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
+    //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
+    private AbstractFaceServer faceServer = new CMUFaceServer();
     private int mTakeCounter = 0;
     private CameraView mCameraView;
     private TextView mInfoView;
@@ -83,7 +84,6 @@ public class MainActivity extends ActionMenuActivity {
                                 showMessage(message);
                                 mDetectMenu.setEnabled(true);
                             }
-
                         }
                     });
                 }
