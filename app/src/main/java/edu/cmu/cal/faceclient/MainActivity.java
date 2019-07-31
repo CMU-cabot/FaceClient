@@ -32,7 +32,7 @@ import edu.cmu.cal.faceserver.CMUFaceServer;
 public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 3;
+    private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 10;
     MenuItem mDetectMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
