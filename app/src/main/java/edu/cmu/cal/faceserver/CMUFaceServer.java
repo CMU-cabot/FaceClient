@@ -10,15 +10,17 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 public class CMUFaceServer extends AbstractFaceServer {
     private static final String url = "http://cal.ri.cmu.edu:5000/test";
+    private static final String uuid = UUID.randomUUID().toString();
     private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
-    Map<String, String> mParameters = new HashMap();
+    private final Map<String, String> mParameters = new HashMap();
 
     public CMUFaceServer() {
         super(url);
-        mParameters.put("uuid", "1234");
+        mParameters.put("uuid", uuid);
         mParameters.put("phase", "dev");
         mParameters.put("model", "insightface");
         mParameters.put("mode", "recognition");
