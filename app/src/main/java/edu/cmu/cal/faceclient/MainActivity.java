@@ -32,7 +32,7 @@ import edu.cmu.cal.faceserver.CMUFaceServer;
 public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 10;
+    private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 3, REPEAT_DELAY = 10 * 1000;
     MenuItem mDetectMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
@@ -66,7 +66,7 @@ public class MainActivity extends ActionMenuActivity {
                         str = faceServer.getSpeakText();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        str = e.toString();
+                        str = String.format("There was an error processing the request.\n\n%s", e.toString());
                     }
                     if (str.isEmpty()) {
                         str = getString(R.string.no_faces);
@@ -77,12 +77,22 @@ public class MainActivity extends ActionMenuActivity {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            if (mTakeCounter > 0) {
+                            if (mTakeCounter > 0 && getCurrentMenuIndex() == 1) {
                                 showMessage(getString(R.string.retrying));
                                 mCameraView.takePicture();
                             } else {
                                 showMessage(message);
                                 mDetectMenu.setEnabled(true);
+                                if (REPEAT_DELAY > 0 && getCurrentMenuIndex() == 1) {
+                                    mHandler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (getCurrentMenuIndex() == 1) {
+                                                onDetectMenu(mDetectMenu);
+                                            }
+                                        }
+                                    }, REPEAT_DELAY);
+                                }
                             }
                         }
                     });
