@@ -6,4 +6,9 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:onClick="onDetectMenu"
         android:title="Detect" />
+    <item
+        android:id="@+id/single_menu"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:onClick="onDetectMenu"
+        android:title="Test Single Take" />
 </menu>

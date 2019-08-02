@@ -88,7 +88,7 @@ public class MainActivity extends ActionMenuActivity {
                                         @Override
                                         public void run() {
                                             if (getCurrentMenuIndex() == 1) {
-                                                onDetectMenu(mDetectMenu);
+                                                onDetectMenu(null);
                                             }
                                         }
                                     }, REPEAT_DELAY);
@@ -127,7 +127,7 @@ public class MainActivity extends ActionMenuActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) & mDetectMenu.isEnabled()) {
-            onDetectMenu(mDetectMenu);
+            onDetectMenu(null);
         }
         return super.onKeyDown(keyCode, event);
     }
