@@ -33,7 +33,7 @@ public class CMUFaceServer extends AbstractFaceServer {
         for (Iterator<String> it = mParameters.keySet().iterator(); it.hasNext(); ) {
             String name = it.next();
             HttpHeaders headers = new HttpHeaders().set("Content-Disposition", String.format("form-data; name=\"%s\"", name));
-            content.addPart(new MultipartContent.Part(headers, new ByteArrayContent(null, mParameters.get(name).getBytes())));
+            content.addPart(new MultipartContent.Part(headers, ByteArrayContent.fromString(null, mParameters.get(name))));
         }
         content.addPart(new MultipartContent.Part(imageHeaders, imageContent));
     }
