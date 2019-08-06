@@ -41,6 +41,15 @@ public class MainActivity extends ActionMenuActivity {
     private TextView mInfoView;
     private Handler mHandler, mBackgroundHandler;
     private TextToSpeech mTTS;
+
+    private final Runnable repeatRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (getCurrentMenuIndex() == 1) {
+                onDetectMenu(null);
+            }
+        }
+    };
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -84,14 +93,7 @@ public class MainActivity extends ActionMenuActivity {
                                 showMessage(message);
                                 mDetectMenu.setEnabled(true);
                                 if (REPEAT_DELAY > 0 && getCurrentMenuIndex() == 1) {
-                                    mHandler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (getCurrentMenuIndex() == 1) {
-                                                onDetectMenu(null);
-                                            }
-                                        }
-                                    }, REPEAT_DELAY);
+                                    mHandler.postDelayed(repeatRunnable, REPEAT_DELAY);
                                 }
                             }
                         }
@@ -126,7 +128,7 @@ public class MainActivity extends ActionMenuActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) & mDetectMenu.isEnabled()) {
+        if (keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) {
             onDetectMenu(null);
         }
         return super.onKeyDown(keyCode, event);
@@ -179,10 +181,13 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     public void onDetectMenu(MenuItem item) {
-        mDetectMenu.setEnabled(false);
-        mTakeCounter = MAX_TAKE_COUNT;
-        showMessage(getString(R.string.taking));
-        mCameraView.takePicture();
+        mHandler.removeCallbacks(repeatRunnable);
+        if (mDetectMenu.isEnabled()) {
+            mDetectMenu.setEnabled(false);
+            mTakeCounter = MAX_TAKE_COUNT;
+            showMessage(getString(R.string.taking));
+            mCameraView.takePicture();
+        }
     }
 
     private void showMessage(String message) {

@@ -25,6 +25,7 @@ public class WatsonVisualRecognition extends AbstractFaceServer {
 
     @Override
     protected void addExtra(HttpRequest request) {
+        request.setWriteTimeout(10 * 1000);
         request.setInterceptor(new BasicAuthentication("apikey", key));
     }
 
