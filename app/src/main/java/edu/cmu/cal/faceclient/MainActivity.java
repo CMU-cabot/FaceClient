@@ -41,7 +41,6 @@ public class MainActivity extends ActionMenuActivity {
     private TextView mInfoView;
     private Handler mHandler, mBackgroundHandler;
     private TextToSpeech mTTS;
-
     private final Runnable repeatRunnable = new Runnable() {
         @Override
         public void run() {
@@ -50,6 +49,7 @@ public class MainActivity extends ActionMenuActivity {
             }
         }
     };
+    private File mFilesDir;
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -110,6 +110,7 @@ public class MainActivity extends ActionMenuActivity {
         setContentView(R.layout.activity_main);
         HandlerThread thread = new HandlerThread("background");
         thread.start();
+        mFilesDir = getExternalFilesDir(null);
         mHandler = new Handler();
         mBackgroundHandler = new Handler(thread.getLooper());
         mCameraView = findViewById(R.id.camera);
@@ -216,7 +217,7 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     private void saveFile(final byte[] data) throws Exception {
-        try (OutputStream os = new FileOutputStream(new File(getExternalFilesDir(null), "picture.jpg"))) {
+        try (OutputStream os = new FileOutputStream(new File(mFilesDir, "picture.jpg"))) {
             os.write(data);
         }
     }
