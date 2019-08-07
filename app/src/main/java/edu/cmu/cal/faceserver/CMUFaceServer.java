@@ -56,18 +56,20 @@ public class CMUFaceServer extends AbstractFaceServer {
                         sb.append(String.format("%s,\n", name));
                     }
                 }
-                if (face.optDouble("gender_conf", 0) > gender_thres) {
-                    String gender = face.optString("gender");
-                    if ("M".equals(gender)) {
-                        sb.append("male,\n");
-                    } else if ("F".equals(gender)) {
-                        sb.append("female,\n");
+                if (sb.length() == 0) {
+                    if (face.optDouble("gender_conf", 0) > gender_thres) {
+                        String gender = face.optString("gender");
+                        if ("M".equals(gender)) {
+                            sb.append("male,\n");
+                        } else if ("F".equals(gender)) {
+                            sb.append("female,\n");
+                        }
                     }
-                }
-                if (face.optDouble("age_conf", 0) > age_thres) {
-                    int age = face.optInt("age", -1);
-                    if (age >= 0) {
-                        sb.append(String.format("%d years old,\n", age));
+                    if (face.optDouble("age_conf", 0) > age_thres) {
+                        int age = face.optInt("age", -1);
+                        if (age >= 0) {
+                            sb.append(String.format("%d years old,\n", age));
+                        }
                     }
                 }
                 if (face.optDouble("gaze_conf", 0) > gaze_thres) {
