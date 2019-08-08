@@ -1,11 +1,14 @@
 package edu.cmu.cal.faceserver;
 
+import android.util.Log;
+
 import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.MultipartContent;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -18,7 +21,9 @@ public class CMUFaceServer extends AbstractFaceServer {
     private static final String uuid = UUID.randomUUID().toString();
     private static final double name_thres = 0.5, gender_thres = 0.5, age_thres = 0.5, gaze_thres = 0.5;
     private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
+    private static final String[] KEYS = {"name", "gender", "age", "distance", "position", "gaze"};
     private final Map<String, String> mParameters = new HashMap();
+    private JSONObject lastSpeak = new JSONObject();
 
     public CMUFaceServer() {
         super(url);
@@ -66,53 +71,79 @@ public class CMUFaceServer extends AbstractFaceServer {
 
     @Override
     public String getSpeakText() {
-        JSONObject face = getResultJSON();
+        JSONObject json = buildSpeak();
+        try {
+            Log.d("CMUFaceServer", json.toString(4));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         StringBuffer sb = new StringBuffer();
-        if (face != null) {
-            boolean detected = face.optBoolean("detected");
-            if (detected) {
+        boolean hasText = false;
+        for (String key : KEYS) {
+            String text = json.optString(key, null);
+            if (text != null) {
+                hasText = true;
+                if (!text.equals(lastSpeak.optString(key))) {
+                    sb.append(String.format("%s,\n", text));
+                }
+            }
+        }
+        lastSpeak = json;
+        if (sb.length() == 0 && hasText) {
+            return " ";
+        }
+        return sb.toString();
+    }
+
+    private JSONObject buildSpeak() {
+        JSONObject obj = new JSONObject();
+        JSONObject face = getResultJSON();
+        if (face != null && face.optBoolean("detected")) {
+            try {
                 if (face.optDouble("name_conf", 0) > name_thres) {
-                    String name = face.optString("name");
-                    if (name != null && !"null".equals(name) && !"{}".equals(name)) {
-                        sb.append(String.format("%s,\n", name));
+                    String name = face.optString("name", null);
+                    if (name != null) {
+                        obj.put("name", name);
                     }
                 }
-                if (sb.length() == 0) {
+                if (!obj.has("name")) {
                     if (face.optDouble("gender_conf", 0) > gender_thres) {
                         String gender = face.optString("gender");
                         if ("M".equals(gender)) {
-                            sb.append("male,\n");
+                            obj.put("gender", "male");
                         } else if ("F".equals(gender)) {
-                            sb.append("female,\n");
+                            obj.put("gender", "female");
                         }
                     }
                     if (face.optDouble("age_conf", 0) > age_thres) {
                         int age = face.optInt("age", -1);
                         if (age >= 0) {
-                            sb.append(String.format("%d years old,\n", age));
+                            obj.put("age", String.format("%d years old", age));
                         }
                     }
                 }
                 double distance = face.optDouble("distance", -1);
                 if (distance > 0) {
-                    sb.append(String.format("%.1f meters away,\n", distance));
+                    obj.put("distance", String.format("%.1f meters away", distance));
                 }
                 switch (face.optInt("position", -100)) {
                     case -1:
-                        sb.append("on the left,\n");
+                        obj.put("position", "on the left");
                         break;
                     case 1:
-                        sb.append("on the right,\n");
+                        obj.put("position", "on the right");
                         break;
                 }
                 if (face.optDouble("gaze_conf", 0) > gaze_thres) {
                     boolean gaze = face.optBoolean("gaze");
                     if (gaze) {
-                        sb.append("looking at you,\n");
+                        obj.put("gaze", "looking at you");
                     }
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
-        return sb.toString();
+        return obj;
     }
 }
