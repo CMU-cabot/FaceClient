@@ -93,12 +93,6 @@ public class CMUFaceServer extends AbstractFaceServer {
                         }
                     }
                 }
-                if (face.optDouble("gaze_conf", 0) > gaze_thres) {
-                    boolean gaze = face.optBoolean("gaze");
-                    if (gaze) {
-                        sb.append("looking at you,\n");
-                    }
-                }
                 double distance = face.optDouble("distance", -1);
                 if (distance > 0) {
                     sb.append(String.format("%.1f meters away,\n", distance));
@@ -110,6 +104,12 @@ public class CMUFaceServer extends AbstractFaceServer {
                     case 1:
                         sb.append("on the right,\n");
                         break;
+                }
+                if (face.optDouble("gaze_conf", 0) > gaze_thres) {
+                    boolean gaze = face.optBoolean("gaze");
+                    if (gaze) {
+                        sb.append("looking at you,\n");
+                    }
                 }
             }
         }
