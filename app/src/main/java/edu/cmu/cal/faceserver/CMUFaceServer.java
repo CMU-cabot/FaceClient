@@ -51,7 +51,12 @@ public class CMUFaceServer extends AbstractFaceServer {
 
     @Override
     public int getRepeatDelay() {
-        return 5 * 1000;
+        return 0;
+    }
+
+    @Override
+    public String getTakingText() {
+        return "Taking";
     }
 
     @Override

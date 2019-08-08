@@ -45,6 +45,13 @@ public class MainActivity extends ActionMenuActivity {
         @Override
         public void run() {
             if (getCurrentMenuIndex() == 1) {
+                while(mTTS.isSpeaking()) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 onDetectMenu(null);
             }
         }
@@ -121,7 +128,7 @@ public class MainActivity extends ActionMenuActivity {
         mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
-                mTTS.setSpeechRate(1.5f);
+                mTTS.setSpeechRate(1.75f);
             }
         });
         takeKeyEvents(true);
