@@ -45,14 +45,11 @@ public class MainActivity extends ActionMenuActivity {
         @Override
         public void run() {
             if (getCurrentMenuIndex() == 1) {
-                while(mTTS.isSpeaking()) {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                if (mTTS.isSpeaking()) {
+                    mHandler.postDelayed(this, 10);
+                } else {
+                    onDetectMenu(null);
                 }
-                onDetectMenu(null);
             }
         }
     };
