@@ -38,6 +38,7 @@ public abstract class AbstractFaceServer {
         long t2 = System.nanoTime();
         String str = response.parseAsString();
         Log.d(TAG, String.format("elapsed=%,dns, size=%,dbytes, status=%d\n%s", t2 - t1, request.getContent().getLength(), statusCode, str));
+        response.disconnect();
         return lastResult = statusCode == 200 ? new JSONObject(str) : new JSONObject().put("error", statusCode).put("content", str);
     }
 
