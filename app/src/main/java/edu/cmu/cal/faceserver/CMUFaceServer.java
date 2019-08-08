@@ -49,6 +49,11 @@ public class CMUFaceServer extends AbstractFaceServer {
     }
 
     @Override
+    public String getRetryText() {
+        return "";
+    }
+
+    @Override
     public String getSpeakText() {
         JSONObject face = getResultJSON();
         StringBuffer sb = new StringBuffer();
