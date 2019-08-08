@@ -98,6 +98,14 @@ public class CMUFaceServer extends AbstractFaceServer {
                 if (distance > 0) {
                     sb.append(String.format("%.1f meters away,\n", distance));
                 }
+                switch (face.optInt("position", -100)) {
+                    case -1:
+                        sb.append("on the left,\n");
+                        break;
+                    case 1:
+                        sb.append("on the right,\n");
+                        break;
+                }
             }
         }
         return sb.toString();
