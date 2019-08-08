@@ -4,5 +4,5 @@
     <string name="camera_permission_message">This application needs access to your camera so you can find peoples.</string>
     <string name="taking">Taking picture...</string>
     <string name="retrying">Retrying...</string>
-    <string name="no_faces">No faces detected.</string>
+    <string name="no_faces">Nobody is here.</string>
 </resources>

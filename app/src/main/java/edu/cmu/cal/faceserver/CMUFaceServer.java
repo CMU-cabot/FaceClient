@@ -44,6 +44,11 @@ public class CMUFaceServer extends AbstractFaceServer {
     }
 
     @Override
+    public int getRepeatDelay() {
+        return 5 * 1000;
+    }
+
+    @Override
     public String getSpeakText() {
         JSONObject face = getResultJSON();
         StringBuffer sb = new StringBuffer();

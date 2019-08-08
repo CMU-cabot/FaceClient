@@ -5,10 +5,10 @@
         android:id="@+id/detect_menu"
         android:icon="@android:drawable/ic_menu_camera"
         android:onClick="onDetectMenu"
-        android:title="Detect" />
+        android:title="Start" />
     <item
         android:id="@+id/single_menu"
         android:icon="@android:drawable/ic_menu_camera"
         android:onClick="onDetectMenu"
-        android:title="Test Single Take" />
+        android:title="Test" />
 </menu>

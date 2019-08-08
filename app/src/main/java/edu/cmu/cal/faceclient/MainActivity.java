@@ -32,7 +32,7 @@ import edu.cmu.cal.faceserver.CMUFaceServer;
 public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_CAMERA_PERMISSION = 1, MAX_TAKE_COUNT = 3, REPEAT_DELAY = 10 * 1000;
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
     MenuItem mDetectMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
@@ -87,13 +87,13 @@ public class MainActivity extends ActionMenuActivity {
                         @Override
                         public void run() {
                             if (mTakeCounter > 0 && getCurrentMenuIndex() == 1) {
-                                showMessage(getString(R.string.retrying));
+                                showMessage(getString(R.string.retrying), faceServer.getRetryText());
                                 mCameraView.takePicture();
                             } else {
-                                showMessage(message);
+                                showMessage(message, null);
                                 mDetectMenu.setEnabled(true);
-                                if (REPEAT_DELAY > 0 && getCurrentMenuIndex() == 1) {
-                                    mHandler.postDelayed(repeatRunnable, REPEAT_DELAY);
+                                if (getCurrentMenuIndex() == 1) {
+                                    mHandler.postDelayed(repeatRunnable, faceServer.getRepeatDelay());
                                 }
                             }
                         }
@@ -185,15 +185,15 @@ public class MainActivity extends ActionMenuActivity {
         mHandler.removeCallbacks(repeatRunnable);
         if (mDetectMenu.isEnabled()) {
             mDetectMenu.setEnabled(false);
-            mTakeCounter = MAX_TAKE_COUNT;
-            showMessage(getString(R.string.taking));
+            mTakeCounter = faceServer.getRetryCount();
+            showMessage(getString(R.string.taking), faceServer.getTakingText());
             mCameraView.takePicture();
         }
     }
 
-    private void showMessage(String message) {
+    private void showMessage(String message, String speakText) {
         mInfoView.setText(message);
-        mTTS.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
+        mTTS.speak(speakText != null ? speakText : message, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     private void showPermissionDialog() {

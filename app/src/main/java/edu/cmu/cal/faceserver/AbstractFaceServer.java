@@ -45,6 +45,22 @@ public abstract class AbstractFaceServer {
         return lastResult;
     }
 
+    public int getRetryCount() {
+        return 3;
+    }
+
+    public int getRepeatDelay() {
+        return 10 * 1000;
+    }
+
+    public String getTakingText() {
+        return null;
+    }
+
+    public String getRetryText() {
+        return null;
+    }
+
     protected void addExtra(HttpRequest request) {
     }
 
