@@ -73,13 +73,14 @@ public class MainActivity extends ActionMenuActivity {
                 @Override
                 public void run() {
                     mTakeCounter--;
-                    String str;
+                    String str, speakStr = null;
                     try {
                         JSONObject result = processPicture(cameraView, data);
                         str = faceServer.getSpeakText();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        str = String.format("There was an error processing the request.\n\n%s", e.toString());
+                        speakStr = e.getMessage();
+                        str = e.toString();
                     }
                     if (str.isEmpty()) {
                         str = getString(R.string.no_faces);
@@ -87,6 +88,7 @@ public class MainActivity extends ActionMenuActivity {
                         mTakeCounter = 0;
                     }
                     final String message = str;
+                    final String speakMessage = speakStr;
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -94,7 +96,7 @@ public class MainActivity extends ActionMenuActivity {
                                 showMessage(getString(R.string.retrying), faceServer.getRetryText());
                                 mCameraView.takePicture();
                             } else {
-                                showMessage(message, null);
+                                showMessage(message, speakMessage);
                                 mDetectMenu.setEnabled(true);
                                 if (getCurrentMenuIndex() == 1) {
                                     mHandler.postDelayed(repeatRunnable, faceServer.getRepeatDelay());
