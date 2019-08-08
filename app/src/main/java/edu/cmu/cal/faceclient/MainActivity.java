@@ -121,6 +121,7 @@ public class MainActivity extends ActionMenuActivity {
         mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
+                mTTS.setSpeechRate(1.5f);
             }
         });
         takeKeyEvents(true);
