@@ -41,6 +41,12 @@ public class CMUFaceServer extends AbstractFaceServer {
     @Override
     protected void addExtra(HttpRequest request) {
         request.setWriteTimeout(10 * 1000);
+        request.getHeaders().set("Connection", "close");
+    }
+
+    @Override
+    public int getRetryCount() {
+        return 5;
     }
 
     @Override
