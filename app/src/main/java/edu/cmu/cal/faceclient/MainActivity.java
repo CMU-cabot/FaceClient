@@ -79,7 +79,7 @@ public class MainActivity extends ActionMenuActivity {
                         str = faceServer.getSpeakText();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        speakStr = e.getMessage();
+                        speakStr = " ";//e.getMessage();
                         str = e.toString();
                     }
                     if (str.isEmpty()) {

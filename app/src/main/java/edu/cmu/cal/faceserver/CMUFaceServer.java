@@ -61,12 +61,12 @@ public class CMUFaceServer extends AbstractFaceServer {
 
     @Override
     public String getTakingText() {
-        return "Taking";
+        return ""; // mute
     }
 
     @Override
     public String getRetryText() {
-        return "";
+        return ""; // mute
     }
 
     @Override
@@ -123,12 +123,10 @@ public class CMUFaceServer extends AbstractFaceServer {
                     }
                 }
                 double distance = face.optDouble("distance", -1);
-                if (distance > 0) {
-                    if (distance <= 1.5) {
-                        obj.put("distance", String.format("%.1f meters away", distance));
-                    } else {
-                        obj.put("distance", String.format("%.0f meters away", distance));
-                    }
+                if (distance > 1.5) {
+                    obj.put("distance", String.format("%.0f meters away", distance));
+                } else if (distance > 0) {
+                    obj.put("distance", String.format("%.1f meters away", distance));
                 }
                 switch (face.optInt("position", -100)) {
                     case -1:
