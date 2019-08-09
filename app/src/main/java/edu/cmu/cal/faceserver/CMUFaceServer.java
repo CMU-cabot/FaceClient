@@ -22,6 +22,8 @@ public class CMUFaceServer extends AbstractFaceServer {
     private static final double name_thres = 0.5, gender_thres = 0.5, age_thres = 0.5, gaze_thres = 0.5;
     private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
     private static final String[] KEYS = {"name", "gender", "age", "distance", "position", "gaze"};
+    public static double metersPerUnit = 0.3048;
+    public static int mode = 0;
     private final Map<String, String> mParameters = new HashMap();
     private JSONObject lastSpeak = new JSONObject();
 
@@ -107,8 +109,9 @@ public class CMUFaceServer extends AbstractFaceServer {
                     }
                 }
                 if (!obj.has("name")) {
+                    String gender = null;
                     if (face.optDouble("gender_conf", 0) > gender_thres) {
-                        String gender = face.optString("gender");
+                        gender = face.optString("gender");
                         if ("M".equals(gender)) {
                             obj.put("gender", "male");
                         } else if ("F".equals(gender)) {
@@ -118,15 +121,75 @@ public class CMUFaceServer extends AbstractFaceServer {
                     if (face.optDouble("age_conf", 0) > age_thres) {
                         int age = face.optInt("age", -1);
                         if (age >= 0) {
-                            obj.put("age", String.format("%d years old", age));
+//                            obj.put("age", String.format("%d years old", age));
+                            if (mode == 1) {
+                                if (age < 35) {
+                                    obj.put("age", "young");
+                                } else if (age < 55) {
+                                    obj.put("age", "middle-age");
+                                } else {
+                                    obj.put("age", "old");
+                                }
+                            } else {
+                                if (age < 10) {
+                                    if ("M".equals(gender)) {
+                                        obj.put("age", "boy");
+                                    } else if ("F".equals(gender)) {
+                                        obj.put("age", "girl");
+                                    } else {
+                                        obj.put("age", "child");
+                                    }
+                                } else if (age < 20) {
+                                    obj.put("age", "teenager");
+                                } else {
+                                    switch (age / 10) {
+                                        case 2:
+                                            obj.put("age", "twenties");
+                                            break;
+                                        case 3:
+                                            obj.put("age", "thirties");
+                                            break;
+                                        case 4:
+                                            obj.put("age", "forties");
+                                            break;
+                                        case 5:
+                                            obj.put("age", "fifties");
+                                            break;
+                                        case 6:
+                                            obj.put("age", "sixties");
+                                            break;
+                                        case 7:
+                                            obj.put("age", "seventies");
+                                            break;
+                                        case 8:
+                                            obj.put("age", "eighties");
+                                            break;
+                                        default:
+                                            obj.put("age", "nineties");
+                                            break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                double distance = face.optDouble("distance", -1);
-                if (distance > 1.5) {
-                    obj.put("distance", String.format("%.0f meters away", distance));
-                } else if (distance > 0) {
-                    obj.put("distance", String.format("%.1f meters away", distance));
+                double distance = face.optDouble("distance", -1) / metersPerUnit;
+                if (distance > 0) {
+                    if (mode == 1) {
+                        if (distance > 6) {
+                            obj.put("distance", "far");
+                        } else if (distance > 3) {
+                            obj.put("distance", "near");
+                        } else {
+                            obj.put("distance", "approaching");
+                        }
+                    } else {
+                        if (metersPerUnit == 1) {
+                            obj.put("distance", String.format(distance > 1.5 ? "%.0f meters" : "%.1f meters", distance));
+                        } else {
+                            obj.put("distance", String.format(distance > 5.5 ? "%.0f feet" : "%.1f feet", distance));
+                        }
+                    }
                 }
                 switch (face.optInt("position", -100)) {
                     case -1:
