@@ -11,8 +11,13 @@
         android:checkable="true"
         android:title="Mode A" />
     <item
+        android:id="@+id/feet_menu"
+        android:checkable="true"
+        android:checked="true"
+        android:title="Feet" />
+    <item
         android:id="@+id/single_menu"
         android:icon="@android:drawable/ic_menu_camera"
-        android:onClick="onDetectMenu"
+        android:onClick="onSingleMenu"
         android:title="Test" />
 </menu>

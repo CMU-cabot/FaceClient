@@ -62,6 +62,9 @@ public abstract class AbstractFaceServer {
         return null;
     }
 
+    public void reset() {
+    }
+
     protected void addExtra(HttpRequest request) {
     }
 

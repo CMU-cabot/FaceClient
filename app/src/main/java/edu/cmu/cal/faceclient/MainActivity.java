@@ -34,7 +34,7 @@ public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    MenuItem mDetectMenu, mModeMenu;
+    MenuItem mDetectMenu, mModeMenu, mFeetMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
     private int mTakeCounter = 0;
@@ -77,7 +77,6 @@ public class MainActivity extends ActionMenuActivity {
                     String str, speakStr = null;
                     try {
                         JSONObject result = processPicture(cameraView, data);
-                        CMUFaceServer.mode = mModeMenu.isChecked() ? 1 : 0;
                         str = faceServer.getSpeakText();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -181,15 +180,35 @@ public class MainActivity extends ActionMenuActivity {
         mModeMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                boolean checked = !menuItem.isChecked();
-                menuItem.setChecked(checked);
-                SwitchActionMenuItemView view = (SwitchActionMenuItemView) menuItem.getActionView();
-                view.setChecked(checked);
-                view.setTitle(checked ? "Mode B" : "Mode A");
+                setMode(!menuItem.isChecked());
+                return false;
+            }
+        });
+        mFeetMenu = menu.findItem(R.id.feet_menu);
+        mFeetMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                setFeet(!menuItem.isChecked());
                 return false;
             }
         });
         return true;
+    }
+
+    private void setMode(boolean checked) {
+        mModeMenu.setChecked(checked);
+        SwitchActionMenuItemView view = (SwitchActionMenuItemView) mModeMenu.getActionView();
+        view.setChecked(checked);
+        view.setTitle(checked ? "Mode B" : "Mode A");
+        CMUFaceServer.mode = checked ? CMUFaceServer.MODE_B : CMUFaceServer.MODE_A;
+    }
+
+    private void setFeet(boolean checked) {
+        mFeetMenu.setChecked(checked);
+        SwitchActionMenuItemView view = (SwitchActionMenuItemView) mFeetMenu.getActionView();
+        view.setChecked(checked);
+        view.setTitle(checked ? "Feet" : "Meter");
+        CMUFaceServer.metersPerUnit = checked ? CMUFaceServer.FEET : CMUFaceServer.METER;
     }
 
     @Override
@@ -210,6 +229,11 @@ public class MainActivity extends ActionMenuActivity {
             showMessage(getString(R.string.taking), faceServer.getTakingText());
             mCameraView.takePicture();
         }
+    }
+
+    public void onSingleMenu(MenuItem item) {
+        faceServer.reset();
+        onDetectMenu(item);
     }
 
     private void showMessage(String message, String speakText) {

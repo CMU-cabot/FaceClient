@@ -17,13 +17,15 @@ import java.util.Map;
 import java.util.UUID;
 
 public class CMUFaceServer extends AbstractFaceServer {
+    public static final double METER = 1, FEET = 0.3048;
+    public static final int MODE_A = 0, MODE_B = 1;
     private static final String url = "http://cal.ri.cmu.edu:5000/test";
     private static final String uuid = UUID.randomUUID().toString();
     private static final double name_thres = 0.5, gender_thres = 0.5, age_thres = 0.5, gaze_thres = 0.5;
     private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
     private static final String[] KEYS = {"name", "gender", "age", "distance", "position", "gaze"};
-    public static double metersPerUnit = 0.3048;
-    public static int mode = 0;
+    public static double metersPerUnit = FEET;
+    public static int mode = MODE_A;
     private final Map<String, String> mParameters = new HashMap();
     private JSONObject lastSpeak = new JSONObject();
 
@@ -69,6 +71,11 @@ public class CMUFaceServer extends AbstractFaceServer {
     @Override
     public String getRetryText() {
         return ""; // mute
+    }
+
+    @Override
+    public void reset() {
+        lastSpeak = new JSONObject();
     }
 
     @Override
@@ -122,7 +129,7 @@ public class CMUFaceServer extends AbstractFaceServer {
                         int age = face.optInt("age", -1);
                         if (age >= 0) {
 //                            obj.put("age", String.format("%d years old", age));
-                            if (mode == 1) {
+                            if (mode == MODE_B) {
                                 if (age < 35) {
                                     obj.put("age", "young");
                                 } else if (age < 55) {
@@ -175,7 +182,7 @@ public class CMUFaceServer extends AbstractFaceServer {
                 }
                 double distance = face.optDouble("distance", -1) / metersPerUnit;
                 if (distance > 0) {
-                    if (mode == 1) {
+                    if (mode == MODE_B) {
                         if (distance > 6) {
                             obj.put("distance", "far");
                         } else if (distance > 3) {
@@ -184,7 +191,7 @@ public class CMUFaceServer extends AbstractFaceServer {
                             obj.put("distance", "approaching");
                         }
                     } else {
-                        if (metersPerUnit == 1) {
+                        if (metersPerUnit == METER) {
                             obj.put("distance", String.format(distance > 1.5 ? "%.0f meters" : "%.1f meters", distance));
                         } else {
                             obj.put("distance", String.format(distance > 5.5 ? "%.0f feet" : "%.1f feet", distance));
