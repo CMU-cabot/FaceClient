@@ -131,43 +131,43 @@ public class CMUFaceServer extends AbstractFaceServer {
                                     obj.put("age", "old");
                                 }
                             } else {
-                                if (age < 10) {
-                                    if ("M".equals(gender)) {
-                                        obj.put("age", "boy");
-                                    } else if ("F".equals(gender)) {
-                                        obj.put("age", "girl");
-                                    } else {
-                                        obj.put("age", "child");
-                                    }
-                                } else if (age < 20) {
-                                    obj.put("age", "teenager");
-                                } else {
-                                    switch (age / 10) {
-                                        case 2:
-                                            obj.put("age", "twenties");
-                                            break;
-                                        case 3:
-                                            obj.put("age", "thirties");
-                                            break;
-                                        case 4:
-                                            obj.put("age", "forties");
-                                            break;
-                                        case 5:
-                                            obj.put("age", "fifties");
-                                            break;
-                                        case 6:
-                                            obj.put("age", "sixties");
-                                            break;
-                                        case 7:
-                                            obj.put("age", "seventies");
-                                            break;
-                                        case 8:
-                                            obj.put("age", "eighties");
-                                            break;
-                                        default:
-                                            obj.put("age", "nineties");
-                                            break;
-                                    }
+                                switch (age / 10) {
+                                    case 0:
+                                        if ("M".equals(gender)) {
+                                            obj.put("age", "boy");
+                                        } else if ("F".equals(gender)) {
+                                            obj.put("age", "girl");
+                                        } else {
+                                            obj.put("age", "child");
+                                        }
+                                        break;
+                                    case 1:
+                                        obj.put("age", "teenager");
+                                        break;
+                                    case 2:
+                                        obj.put("age", "twenties");
+                                        break;
+                                    case 3:
+                                        obj.put("age", "thirties");
+                                        break;
+                                    case 4:
+                                        obj.put("age", "forties");
+                                        break;
+                                    case 5:
+                                        obj.put("age", "fifties");
+                                        break;
+                                    case 6:
+                                        obj.put("age", "sixties");
+                                        break;
+                                    case 7:
+                                        obj.put("age", "seventies");
+                                        break;
+                                    case 8:
+                                        obj.put("age", "eighties");
+                                        break;
+                                    default:
+                                        obj.put("age", "nineties");
+                                        break;
                                 }
                             }
                         }
