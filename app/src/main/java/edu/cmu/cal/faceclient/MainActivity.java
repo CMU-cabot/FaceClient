@@ -33,7 +33,7 @@ public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    MenuItem mDetectMenu;
+    MenuItem mDetectMenu, mModeMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
     private int mTakeCounter = 0;
@@ -76,6 +76,7 @@ public class MainActivity extends ActionMenuActivity {
                     String str, speakStr = null;
                     try {
                         JSONObject result = processPicture(cameraView, data);
+                        CMUFaceServer.mode = mModeMenu.isChecked() ? 1 : 0;
                         str = faceServer.getSpeakText();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -175,6 +176,7 @@ public class MainActivity extends ActionMenuActivity {
         super.onCreateActionMenu(menu);
         getMenuInflater().inflate(R.menu.menu, menu);
         mDetectMenu = menu.findItem(R.id.detect_menu);
+        mModeMenu = menu.findItem(R.id.mode_menu);
         return true;
     }
 

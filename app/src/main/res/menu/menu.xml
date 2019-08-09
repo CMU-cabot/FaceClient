@@ -7,6 +7,10 @@
         android:onClick="onDetectMenu"
         android:title="Start" />
     <item
+        android:id="@+id/mode_menu"
+        android:checkable="true"
+        android:title="Mode B" />
+    <item
         android:id="@+id/single_menu"
         android:icon="@android:drawable/ic_menu_camera"
         android:onClick="onDetectMenu"
