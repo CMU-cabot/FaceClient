@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.vuzix.hud.actionmenu.ActionMenuActivity;
+import com.vuzix.hud.actionmenu.SwitchActionMenuItemView;
 
 import org.json.JSONObject;
 
@@ -177,6 +178,17 @@ public class MainActivity extends ActionMenuActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         mDetectMenu = menu.findItem(R.id.detect_menu);
         mModeMenu = menu.findItem(R.id.mode_menu);
+        mModeMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                boolean checked = !menuItem.isChecked();
+                menuItem.setChecked(checked);
+                SwitchActionMenuItemView view = (SwitchActionMenuItemView) menuItem.getActionView();
+                view.setChecked(checked);
+                view.setTitle(checked ? "Mode B" : "Mode A");
+                return false;
+            }
+        });
         return true;
     }
 
