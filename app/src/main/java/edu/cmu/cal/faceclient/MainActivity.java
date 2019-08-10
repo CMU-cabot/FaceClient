@@ -3,10 +3,12 @@ package edu.cmu.cal.faceclient;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -176,19 +178,26 @@ public class MainActivity extends ActionMenuActivity {
         super.onCreateActionMenu(menu);
         getMenuInflater().inflate(R.menu.menu, menu);
         mDetectMenu = menu.findItem(R.id.detect_menu);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mModeMenu = menu.findItem(R.id.mode_menu);
+        setMode(prefs.getBoolean("mode", false));
         mModeMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                setMode(!menuItem.isChecked());
+                boolean checked = !menuItem.isChecked();
+                setMode(checked);
+                prefs.edit().putBoolean("mode", checked).apply();
                 return false;
             }
         });
         mFeetMenu = menu.findItem(R.id.feet_menu);
+        setFeet(prefs.getBoolean("feet", true));
         mFeetMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                setFeet(!menuItem.isChecked());
+                boolean checked = !menuItem.isChecked();
+                setFeet(checked);
+                prefs.edit().putBoolean("feet", checked).apply();
                 return false;
             }
         });
@@ -196,18 +205,26 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     private void setMode(boolean checked) {
+        String title = checked ? "Mode B" : "Mode A";
         mModeMenu.setChecked(checked);
+        mModeMenu.setTitle(title);
         SwitchActionMenuItemView view = (SwitchActionMenuItemView) mModeMenu.getActionView();
-        view.setChecked(checked);
-        view.setTitle(checked ? "Mode B" : "Mode A");
+        if (view != null) {
+            view.setChecked(checked);
+            view.setTitle(title);
+        }
         CMUFaceServer.mode = checked ? CMUFaceServer.MODE_B : CMUFaceServer.MODE_A;
     }
 
     private void setFeet(boolean checked) {
+        String title = checked ? "Feet" : "Meter";
         mFeetMenu.setChecked(checked);
+        mFeetMenu.setTitle(title);
         SwitchActionMenuItemView view = (SwitchActionMenuItemView) mFeetMenu.getActionView();
-        view.setChecked(checked);
-        view.setTitle(checked ? "Feet" : "Meter");
+        if (view != null) {
+            view.setChecked(checked);
+            view.setTitle(title);
+        }
         CMUFaceServer.metersPerUnit = checked ? CMUFaceServer.FEET : CMUFaceServer.METER;
     }
 
