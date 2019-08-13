@@ -274,7 +274,7 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     private JSONObject processPicture(CameraView cameraView, final byte[] data) throws Exception {
-        saveFile(data);
+//        saveFile(data);
         return faceServer.process(data);
     }
 

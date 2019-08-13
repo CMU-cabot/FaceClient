@@ -1,5 +1,7 @@
 package edu.cmu.cal.faceserver;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.google.api.client.http.ByteArrayContent;
@@ -13,6 +15,8 @@ import com.google.api.client.http.MultipartContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 
 public abstract class AbstractFaceServer {
     private static final String TAG = "FaceServer";
@@ -28,7 +32,12 @@ public abstract class AbstractFaceServer {
     public final JSONObject process(byte[] data) throws Exception {
         long t0 = System.nanoTime();
         MultipartContent content = new MultipartContent().setMediaType(mediaType);
-        HttpContent imageContent = new ByteArrayContent("image/jpeg", data);
+        // do image compression before sending it to a server
+        Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 73, stream);
+        HttpContent imageContent = new ByteArrayContent("image/jpeg", stream.toByteArray());
+//        HttpContent imageContent = new ByteArrayContent("image/jpeg", data);
         addFormData(content, imageContent);
         long t1 = System.nanoTime();
         HttpRequest request = mRequestFactory.buildPostRequest(url, content);
@@ -37,7 +46,7 @@ public abstract class AbstractFaceServer {
         int statusCode = response.getStatusCode();
         long t2 = System.nanoTime();
         String str = response.parseAsString();
-        Log.d(TAG, String.format("elapsed=%,dns, size=%,dbytes, status=%d\n%s", t2 - t1, request.getContent().getLength(), statusCode, str));
+        Log.d(TAG, String.format("request with image=%,dns, elapsed=%,dns, size=%,dbytes, status=%d\n%s", t1 - t0, t2 - t1, request.getContent().getLength(), statusCode, str));
         response.disconnect();
         return lastResult = statusCode == 200 ? new JSONObject(str) : new JSONObject().put("error", statusCode).put("content", str);
     }

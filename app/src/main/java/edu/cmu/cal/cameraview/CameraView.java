@@ -70,13 +70,18 @@ public class CameraView extends FrameLayout {
     }
 
     public void takePicture() {
+        final long t0 = System.nanoTime();
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                mCamera.startPreview();
+                long t1 = System.nanoTime();
                 for (Callback callback : mCallbacks) {
                     callback.onPictureTaken(CameraView.this, data);
                 }
+                long t2 = System.nanoTime();
+                mCamera.startPreview();
+                long t3 = System.nanoTime();
+                Log.d(TAG, String.format("takePicture=%,dns, startPreview=%,dns\n", t1 - t0, t3 - t2));
             }
         });
     }
@@ -163,10 +168,13 @@ class PreviewSurface extends SurfaceView implements SurfaceHolder.Callback {
         Log.d(TAG, "Supported picture size:" + sbPictureSize);
         // Supported picture size: 640x480 1600x1200 2048x1536 2592x1944 3264x2448
         if (previewSize != null) {
+            Log.d(TAG, "Using preview size:" + previewSize[0] + "x" + previewSize[1]);
             params.setPreviewSize(previewSize[0], previewSize[1]);
         }
         if (pictureSize != null) {
-            params.setPictureSize(pictureSize[0], pictureSize[1]);
+//            Log.d(TAG, "Using picture size:" + pictureSize[0] + "x" + pictureSize[1]);
+//            params.setPictureSize(pictureSize[0], pictureSize[1]);
+            params.setPictureSize(3264, 2448);
         }
         camera.setParameters(params);
     }

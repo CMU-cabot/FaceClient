@@ -12,8 +12,10 @@
 
     <style name="Widget.CameraView" parent="android:Widget">
         <item name="android:adjustViewBounds">false</item>
+        <!-- Supported preview size: 176x144 320x240 640x480 720x480 800x480 1280x720 1920x1080 -->
         <item name="previewSize">640x480</item>
-        <item name="pictureSize">640x480</item>
+        <!-- Supported picture size: 640x480 1600x1200 2048x1536 2592x1944 3264x2448 -->
+        <item name="pictureSize">3264x2448</item>
     </style>
 
 </resources>

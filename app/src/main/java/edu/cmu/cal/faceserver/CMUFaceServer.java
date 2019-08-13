@@ -19,8 +19,10 @@ import java.util.UUID;
 public class CMUFaceServer extends AbstractFaceServer {
     public static final double METER = 1, FEET = 0.3048;
     public static final int MODE_A = 0, MODE_B = 1;
-    private static final String url = "http://cal.ri.cmu.edu:5000/test";
-    private static final String uuid = UUID.randomUUID().toString();
+    private static final String url = "http://192.168.11.2:5000/test";
+//    private static final String url = "http://cal.ri.cmu.edu:5000/test";
+//    private static final String uuid = UUID.randomUUID().toString();
+    private static final String uuid = "pp00";
     private static final double name_thres = 0.5, gender_thres = 0.5, age_thres = 0.5, gaze_thres = 0.5;
     private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
     private static final String[] KEYS = {"name", "gender", "age", "distance", "position", "gaze"};
@@ -80,6 +82,10 @@ public class CMUFaceServer extends AbstractFaceServer {
 
     @Override
     public String getSpeakText() {
+        lastSpeak.remove("name");
+        lastSpeak.remove("distance");
+        lastSpeak.remove("position");
+        lastSpeak.remove("gaze");
         JSONObject json = buildSpeak();
         try {
             Log.d("CMUFaceServer", json.toString(4));
