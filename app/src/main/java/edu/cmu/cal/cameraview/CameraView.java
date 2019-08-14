@@ -3,6 +3,9 @@ package edu.cmu.cal.cameraview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.hardware.Camera;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -24,6 +27,7 @@ public class CameraView extends FrameLayout {
     private final ArrayList<Callback> mCallbacks = new ArrayList<>();
     private Camera mCamera;
     private PreviewSurface mPreview;
+    private Handler mCameraHandler;
 
     public CameraView(Context context) {
         this(context, null);
@@ -40,6 +44,10 @@ public class CameraView extends FrameLayout {
                     context.obtainStyledAttributes(attrs, R.styleable.CameraView, defStyleAttr, R.style.Widget_CameraView);
             addView(mPreview = new PreviewSurface(context, array));
         }
+
+        HandlerThread thread = new HandlerThread("camera");
+        thread.start();
+        mCameraHandler = new Handler(thread.getLooper());
     }
 
     public void start() {
@@ -47,20 +55,38 @@ public class CameraView extends FrameLayout {
         if (mCamera != null) {
             stop();
         }
-        mPreview.cameraChanged(mCamera = Camera.open());
-        for (Callback callback : mCallbacks) {
-            callback.onCameraOpened(this);
-        }
-        mCamera.startPreview();
+        mCameraHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mCamera = Camera.open();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPreview.cameraChanged(mCamera);
+                        for (Callback callback : mCallbacks) {
+                            callback.onCameraOpened(CameraView.this);
+                        }
+                        mCamera.startPreview();
+                    }
+                });
+            }
+        });
+
     }
 
     public void stop() {
         Log.d(TAG, "stop");
         if (mCamera != null) {
-            mCamera.release();
-            mPreview.cameraChanged(mCamera = null);
+            mCameraHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mCamera.release();
+                    mCamera = null;
+                }
+            });
+            mPreview.cameraChanged(null);
             for (Callback callback : mCallbacks) {
-                callback.onCameraClosed(this);
+                callback.onCameraClosed(CameraView.this);
             }
         }
     }
@@ -70,18 +96,23 @@ public class CameraView extends FrameLayout {
     }
 
     public void takePicture() {
-        final long t0 = System.nanoTime();
-        mCamera.takePicture(null, null, new Camera.PictureCallback() {
+        mCameraHandler.post(new Runnable() {
             @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                long t1 = System.nanoTime();
-                for (Callback callback : mCallbacks) {
-                    callback.onPictureTaken(CameraView.this, data);
-                }
-                long t2 = System.nanoTime();
-                mCamera.startPreview();
-                long t3 = System.nanoTime();
-                Log.d(TAG, String.format("takePicture=%,dns, startPreview=%,dns\n", t1 - t0, t3 - t2));
+            public void run() {
+                final long t0 = System.nanoTime();
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        long t1 = System.nanoTime();
+                        for (Callback callback : mCallbacks) {
+                            callback.onPictureTaken(CameraView.this, data);
+                        }
+                        long t2 = System.nanoTime();
+                        mCamera.startPreview();
+                        long t3 = System.nanoTime();
+                        Log.d(TAG, String.format("takePicture=%,dns, startPreview=%,dns\n", t1 - t0, t3 - t2));
+                    }
+                });
             }
         });
     }
@@ -175,6 +206,7 @@ class PreviewSurface extends SurfaceView implements SurfaceHolder.Callback {
 //            Log.d(TAG, "Using picture size:" + pictureSize[0] + "x" + pictureSize[1]);
 //            params.setPictureSize(pictureSize[0], pictureSize[1]);
             params.setPictureSize(3264, 2448);
+            params.setJpegQuality(73);
         }
         camera.setParameters(params);
     }

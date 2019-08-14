@@ -33,11 +33,11 @@ public abstract class AbstractFaceServer {
         long t0 = System.nanoTime();
         MultipartContent content = new MultipartContent().setMediaType(mediaType);
         // do image compression before sending it to a server
-        Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 73, stream);
-        HttpContent imageContent = new ByteArrayContent("image/jpeg", stream.toByteArray());
-//        HttpContent imageContent = new ByteArrayContent("image/jpeg", data);
+        //Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
+        //ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        //image.compress(Bitmap.CompressFormat.JPEG, 73, stream);
+        //HttpContent imageContent = new ByteArrayContent("image/jpeg", stream.toByteArray());
+        HttpContent imageContent = new ByteArrayContent("image/jpeg", data);
         addFormData(content, imageContent);
         long t1 = System.nanoTime();
         HttpRequest request = mRequestFactory.buildPostRequest(url, content);

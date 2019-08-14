@@ -57,7 +57,7 @@ public class CMUFaceServer extends AbstractFaceServer {
 
     @Override
     public int getRetryCount() {
-        return 5;
+        return 1000;
     }
 
     @Override

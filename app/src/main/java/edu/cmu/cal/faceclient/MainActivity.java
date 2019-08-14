@@ -57,6 +57,11 @@ public class MainActivity extends ActionMenuActivity {
         }
     };
     private File mFilesDir;
+    private long mStartTime = 0;
+    private long mInitTime = -1;
+    private long mShutterCount = 0;
+    private double mTakingPictureTime = 0;
+    private double mTotalTime = 0;
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -75,6 +80,8 @@ public class MainActivity extends ActionMenuActivity {
             mBackgroundHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    mTakingPictureTime = (System.nanoTime() - mStartTime)/1000000000.0;
+                    mShutterCount++;
                     mTakeCounter--;
                     String str, speakStr = null;
                     try {
@@ -92,12 +99,14 @@ public class MainActivity extends ActionMenuActivity {
                     }
                     final String message = str;
                     final String speakMessage = speakStr;
+                    mTotalTime = (System.nanoTime() - mStartTime)/1000000000.0;
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             if (mTakeCounter > 0 && getCurrentMenuIndex() == 1) {
-                                showMessage(getString(R.string.retrying), faceServer.getRetryText());
+                                mStartTime = System.nanoTime();
                                 mCameraView.takePicture();
+                                showMessage(getString(R.string.retrying), faceServer.getRetryText());
                             } else {
                                 showMessage(message, speakMessage);
                                 mDetectMenu.setEnabled(true);
@@ -243,8 +252,13 @@ public class MainActivity extends ActionMenuActivity {
         if (mDetectMenu.isEnabled()) {
             mDetectMenu.setEnabled(false);
             mTakeCounter = faceServer.getRetryCount();
-            showMessage(getString(R.string.taking), faceServer.getTakingText());
+            if (mInitTime < 0) {
+                mInitTime = System.nanoTime();
+                mShutterCount = 0;
+            }
+            mStartTime = System.nanoTime();
             mCameraView.takePicture();
+            showMessage(getString(R.string.taking), faceServer.getTakingText());
         }
     }
 
@@ -254,7 +268,8 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     private void showMessage(String message, String speakText) {
-        mInfoView.setText(message);
+        double fps = mShutterCount / ((System.nanoTime()-mInitTime)/1000000000.0);
+        mInfoView.setText(message + String.format(" TP:%.2f TT:%.2f FPS:%.2f", mTakingPictureTime, mTotalTime, fps));
         mTTS.speak(speakText != null ? speakText : message, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
