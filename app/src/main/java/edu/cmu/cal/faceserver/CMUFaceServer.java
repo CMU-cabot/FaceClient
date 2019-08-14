@@ -19,12 +19,12 @@ import java.util.UUID;
 public class CMUFaceServer extends AbstractFaceServer {
     public static final double METER = 1, FEET = 0.3048;
     public static final int MODE_A = 0, MODE_B = 1;
-    private static final String url = "http://192.168.11.2:5000/test";
-//    private static final String url = "http://cal.ri.cmu.edu:5000/test";
+//    private static final String url = "http://192.168.11.2:5000/test";
+    private static final String url = "http://cal.ri.cmu.edu:5000/test";
 //    private static final String uuid = UUID.randomUUID().toString();
     private static final String uuid = "pp00";
     private static final double name_thres = 0.5, gender_thres = 0.5, age_thres = 0.5, gaze_thres = 0.5;
-    private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
+//    private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"file\"; filename=\"picture.jpg\"");
     private static final String[] KEYS = {"name", "gender", "age", "distance", "position", "gaze"};
     public static double metersPerUnit = FEET;
     public static int mode = MODE_A;
@@ -34,7 +34,7 @@ public class CMUFaceServer extends AbstractFaceServer {
     public CMUFaceServer() {
         super(url);
         mParameters.put("uuid", uuid);
-        mParameters.put("phase", "dev");
+//        mParameters.put("phase", "dev");
         mParameters.put("model", "insightface");
         mParameters.put("mode", "recognition");
     }
@@ -46,6 +46,12 @@ public class CMUFaceServer extends AbstractFaceServer {
             HttpHeaders headers = new HttpHeaders().set("Content-Disposition", String.format("form-data; name=\"%s\"", name));
             content.addPart(new MultipartContent.Part(headers, ByteArrayContent.fromString(null, mParameters.get(name))));
         }
+        // set phase according to the mode (MODE_A/MODE_B)
+        final String phase = (mode == MODE_A) ? "MODE_A" : "MODE_B";
+        HttpHeaders headers = new HttpHeaders().set("Content-Disposition", "form-data; name=\"phase\"");
+        content.addPart(new MultipartContent.Part(headers, ByteArrayContent.fromString(null, phase)));
+        // include timestamp in an image name to log it on a server
+        final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", String.format("form-data; name=\"%s\"; filename=\"%d.jpg\"", "file", System.currentTimeMillis()));
         content.addPart(new MultipartContent.Part(imageHeaders, imageContent));
     }
 
@@ -188,13 +194,13 @@ public class CMUFaceServer extends AbstractFaceServer {
                 }
                 double distance = face.optDouble("distance", -1) / metersPerUnit;
                 if (distance > 0) {
+                    // adjustment due to the latency between the server and client
+                    distance = (distance > 1) ? distance - 1 : 0;
                     if (mode == MODE_B) {
-                        if (distance > 6) {
+                        if (distance > 5) {
                             obj.put("distance", "far");
-                        } else if (distance > 3) {
-                            obj.put("distance", "near");
                         } else {
-                            obj.put("distance", "approaching");
+                            obj.put("distance", "near");
                         }
                     } else {
                         if (metersPerUnit == METER) {
@@ -216,6 +222,8 @@ public class CMUFaceServer extends AbstractFaceServer {
                     boolean gaze = face.optBoolean("gaze");
                     if (gaze) {
                         obj.put("gaze", "looking at you");
+                    } else{
+                        obj.put("gaze", "not looking at you");
                     }
                 }
             } catch (JSONException e) {
