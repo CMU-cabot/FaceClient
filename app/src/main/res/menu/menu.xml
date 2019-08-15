@@ -16,6 +16,10 @@
         android:checked="true"
         android:title="Friend" />
     <item
+        android:id="@+id/rate_menu"
+        android:checkable="true"
+        android:title="Rate" />
+    <item
         android:id="@+id/feet_menu"
         android:checkable="true"
         android:checked="true"

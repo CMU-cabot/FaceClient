@@ -36,7 +36,8 @@ public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    MenuItem mDetectMenu, mModeMenu, mFriendMenu, mFeetMenu;
+    private final double RATE_15 = 1.5, RATE_18 = 1.8;
+    MenuItem mDetectMenu, mModeMenu, mFriendMenu, mRateMenu, mFeetMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
     private int mTakeCounter = 0;
@@ -62,6 +63,7 @@ public class MainActivity extends ActionMenuActivity {
     private long mShutterCount = 0;
     private double mTakingPictureTime = 0;
     private double mTotalTime = 0;
+    private double mSpeechRate = RATE_15;
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -188,6 +190,7 @@ public class MainActivity extends ActionMenuActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         mDetectMenu = menu.findItem(R.id.detect_menu);
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // mode
         mModeMenu = menu.findItem(R.id.mode_menu);
         setMode(prefs.getBoolean("mode", false));
         mModeMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -208,6 +211,18 @@ public class MainActivity extends ActionMenuActivity {
                 boolean checked = !menuItem.isChecked();
                 setFriend(checked);
                 prefs.edit().putBoolean("friend", checked).apply();
+                return false;
+            }
+        });
+        // speech mode (A: 1.5 / B: 1.8)
+        mRateMenu = menu.findItem(R.id.rate_menu);
+        setRate(prefs.getBoolean("rate", false));
+        mRateMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                boolean checked = !menuItem.isChecked();
+                setRate(checked);
+                prefs.edit().putBoolean("rate", checked).apply();
                 return false;
             }
         });
@@ -248,6 +263,19 @@ public class MainActivity extends ActionMenuActivity {
             view.setTitle(title);
         }
         CMUFaceServer.f_mode = checked ? CMUFaceServer.FRIEND : CMUFaceServer.NO_FRIEND;
+    }
+
+    private void setRate(boolean checked) {
+        String title = checked ? "x1.8" : "x1.5";
+        mRateMenu.setChecked(checked);
+        mRateMenu.setTitle(title);
+        SwitchActionMenuItemView view = (SwitchActionMenuItemView) mRateMenu.getActionView();
+        if (view != null) {
+            view.setChecked(checked);
+            view.setTitle(title);
+        }
+        mSpeechRate = checked ? RATE_18 : RATE_15;
+        Log.d(TAG, String.format("SpeechRate: %f", mSpeechRate));
     }
 
     private void setFeet(boolean checked) {
