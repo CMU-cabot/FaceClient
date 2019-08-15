@@ -11,6 +11,11 @@
         android:checkable="true"
         android:title="Mode A" />
     <item
+        android:id="@+id/friend_menu"
+        android:checkable="true"
+        android:checked="true"
+        android:title="Friend" />
+    <item
         android:id="@+id/feet_menu"
         android:checkable="true"
         android:checked="true"

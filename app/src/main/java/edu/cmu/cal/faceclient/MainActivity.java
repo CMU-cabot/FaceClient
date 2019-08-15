@@ -36,7 +36,7 @@ public class MainActivity extends ActionMenuActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    MenuItem mDetectMenu, mModeMenu, mFeetMenu;
+    MenuItem mDetectMenu, mModeMenu, mFriendMenu, mFeetMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
     private int mTakeCounter = 0;
@@ -199,6 +199,19 @@ public class MainActivity extends ActionMenuActivity {
                 return false;
             }
         });
+        // friend mode
+        mFriendMenu = menu.findItem(R.id.friend_menu);
+        setFriend(prefs.getBoolean("friend", true));
+        mFriendMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                boolean checked = !menuItem.isChecked();
+                setFriend(checked);
+                prefs.edit().putBoolean("friend", checked).apply();
+                return false;
+            }
+        });
+        // feet mode
         mFeetMenu = menu.findItem(R.id.feet_menu);
         setFeet(prefs.getBoolean("feet", true));
         mFeetMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -223,6 +236,18 @@ public class MainActivity extends ActionMenuActivity {
             view.setTitle(title);
         }
         CMUFaceServer.mode = checked ? CMUFaceServer.MODE_B : CMUFaceServer.MODE_A;
+    }
+
+    private void setFriend(boolean checked) {
+        String title = checked ? "Friend" : "NoFriend";
+        mFriendMenu.setChecked(checked);
+        mFriendMenu.setTitle(title);
+        SwitchActionMenuItemView view = (SwitchActionMenuItemView) mFriendMenu.getActionView();
+        if (view != null) {
+            view.setChecked(checked);
+            view.setTitle(title);
+        }
+        CMUFaceServer.f_mode = checked ? CMUFaceServer.FRIEND : CMUFaceServer.NO_FRIEND;
     }
 
     private void setFeet(boolean checked) {
