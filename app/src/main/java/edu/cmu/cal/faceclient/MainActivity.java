@@ -2,6 +2,7 @@ package edu.cmu.cal.faceclient;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -28,15 +29,27 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import darren.gcptts.model.SpeechManager;
 import edu.cmu.cal.cameraview.CameraView;
 import edu.cmu.cal.faceserver.AbstractFaceServer;
 import edu.cmu.cal.faceserver.CMUFaceServer;
+import edu.cmu.cal.watsontts.TTS;
+import darren.gcptts.model.GCPTTSAdapter;
+import darren.gcptts.model.gcp.AudioConfig;
+import darren.gcptts.model.gcp.EAudioEncoding;
+import darren.gcptts.model.gcp.GCPVoice;
 
 public class MainActivity extends ActionMenuActivity {
 
+    private static Context context;
+
+    public static Context getAppContext() {
+        return MainActivity.context;
+    }
+
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    private final double RATE_15 = 1.5, RATE_18 = 1.8;
+    private final float RATE_15 = 2.0f, RATE_18 = 3.0f;
     MenuItem mDetectMenu, mModeMenu, mFriendMenu, mRateMenu, mFeetMenu;
     //    private AbstractFaceServer faceServer = new WatsonVisualRecognition();
     private AbstractFaceServer faceServer = new CMUFaceServer();
@@ -63,7 +76,10 @@ public class MainActivity extends ActionMenuActivity {
     private long mShutterCount = 0;
     private double mTakingPictureTime = 0;
     private double mTotalTime = 0;
-    private double mSpeechRate = RATE_15;
+    private float mSpeechRate = RATE_15;
+
+    private SpeechManager mSpeechManager;
+    private GCPTTSAdapter tts;
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -127,6 +143,7 @@ public class MainActivity extends ActionMenuActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MainActivity.context = getApplicationContext();
         setContentView(R.layout.activity_main);
         HandlerThread thread = new HandlerThread("background");
         thread.start();
@@ -146,6 +163,11 @@ public class MainActivity extends ActionMenuActivity {
         });
         takeKeyEvents(true);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+
+        mSpeechManager = new SpeechManager();
+        tts = new GCPTTSAdapter();
+        mSpeechManager.setSpeech(tts);
     }
 
     @Override
@@ -266,7 +288,7 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     private void setRate(boolean checked) {
-        String title = checked ? "x1.8" : "x1.5";
+        String title = checked ? "fast" : "slow";
         mRateMenu.setChecked(checked);
         mRateMenu.setTitle(title);
         SwitchActionMenuItemView view = (SwitchActionMenuItemView) mRateMenu.getActionView();
@@ -316,14 +338,39 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     public void onSingleMenu(MenuItem item) {
-        faceServer.reset();
-        onDetectMenu(item);
+        //faceServer.reset();
+        //onDetectMenu(item);
+        //TTS.getInstance().speak("Hello World", mSpeechRate);
+        speak("Male, 20s, 20 feet, not looking at you.");
     }
 
     private void showMessage(String message, String speakText) {
         double fps = mShutterCount / ((System.nanoTime()-mInitTime)/1000000000.0);
         mInfoView.setText(message + String.format(" TP:%.2f TT:%.2f FPS:%.2f", mTakingPictureTime, mTotalTime, fps));
-        mTTS.speak(speakText != null ? speakText : message, TextToSpeech.QUEUE_FLUSH, null, null);
+        //mTTS.speak(speakText != null ? speakText : message, TextToSpeech.QUEUE_FLUSH, null, null);
+        if(speakText != null && speakText.length() > 0) {
+            speak(speakText);
+        }
+    }
+    private void speak(String text) {
+
+        mSpeechManager.stopSpeak();
+
+        String languageCode = "en-US";
+        String name = "en-US-Standard-C";
+        //String name = "en-US-Wavenet-A";
+        float pitch = 0f;
+
+        GCPVoice gcpVoice = new GCPVoice(languageCode, name);
+        AudioConfig audioConfig = new AudioConfig.Builder()
+                .addAudioEncoding(EAudioEncoding.MP3)
+                .addSpeakingRate(mSpeechRate)
+                .addPitch(pitch)
+                .build();
+
+        tts.setGCPVoice(gcpVoice);
+        tts.setAudioConfig(audioConfig);
+        mSpeechManager.startSpeak(text);
     }
 
     private void showPermissionDialog() {

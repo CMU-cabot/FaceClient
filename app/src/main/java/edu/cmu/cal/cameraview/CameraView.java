@@ -50,11 +50,13 @@ public class CameraView extends FrameLayout {
         mCameraHandler = new Handler(thread.getLooper());
     }
 
+    private boolean opening = false;
     public void start() {
         Log.d(TAG, "start");
         if (mCamera != null) {
             stop();
         }
+        opening = true;
         mCameraHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -67,14 +69,17 @@ public class CameraView extends FrameLayout {
                             callback.onCameraOpened(CameraView.this);
                         }
                         mCamera.startPreview();
+                        opening = false;
                     }
                 });
             }
         });
-
     }
 
     public void stop() {
+        if (opening) {
+            return;
+        }
         Log.d(TAG, "stop");
         if (mCamera != null) {
             mCameraHandler.post(new Runnable() {
