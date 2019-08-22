@@ -11,15 +11,16 @@ import org.json.JSONObject;
 
 public class WatsonVisualRecognition extends AbstractFaceServer {
     private static final String url = "https://gateway.watsonplatform.net/visual-recognition/api/v3/detect_faces?version=2018-03-19";
+    private static final String log_url = "";
     private static final String key = "0ZG50T7jhQYjHcPbvSQr5f2q7TIQqyX0JQD_AWYbT6xN";
-    private static final HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", "form-data; name=\"images_file\"; filename=\"picture.jpg\"");
 
     public WatsonVisualRecognition() {
-        super(url);
+        super(url, log_url);
     }
 
     @Override
-    protected void addFormData(MultipartContent content, HttpContent imageContent) {
+    protected void addFormData(MultipartContent content, HttpContent imageContent, String filename) {
+        HttpHeaders imageHeaders = new HttpHeaders().set("Content-Disposition", String.format("form-data; name=\"images_file\"; filename=\"%s\"", filename));
         content.addPart(new MultipartContent.Part(imageHeaders, imageContent));
     }
 

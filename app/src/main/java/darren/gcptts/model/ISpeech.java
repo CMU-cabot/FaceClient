@@ -15,6 +15,8 @@ public interface ISpeech {
 
     void stop();
 
+    boolean isSpeaking();
+
     void exit();
 
     void addSpeechListener(ISpeechListener speechListener);

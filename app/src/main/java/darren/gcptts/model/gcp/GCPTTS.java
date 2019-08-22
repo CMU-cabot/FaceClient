@@ -196,6 +196,10 @@ public class GCPTTS {
         }
     }
 
+    public boolean isSpeaking() {
+        return mMediaPlayer != null && mMediaPlayer.isPlaying();
+    }
+
     public void resumeAudio() {
         if (mMediaPlayer != null && !mMediaPlayer.isPlaying() && mVoiceLength != -1) {
             mMediaPlayer.seekTo(mVoiceLength);
