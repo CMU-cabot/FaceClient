@@ -41,6 +41,11 @@ public class AndroidTTSAdapter extends AndroidTTS implements ISpeech, AndroidTTS
     }
 
     @Override
+    public boolean isSpeaking() {
+        return false;
+    }
+
+    @Override
     public void exit() {
         // release resources
         super.exit();

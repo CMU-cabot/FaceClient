@@ -42,6 +42,18 @@ public class SpeechManager extends AbstractSpeechManager implements ISpeech.ISpe
     }
 
     @Override
+    public boolean isSpeaking() {
+        if (mSpeech != null && mSpeakSuccess) {
+            return mSpeech.isSpeaking();
+        } else {
+            if (mSpeechManger != null) {
+                return mSpeechManger.isSpeaking();
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void pause() {
         if (mSpeech != null && mSpeakSuccess) {
             mSpeech.pause();

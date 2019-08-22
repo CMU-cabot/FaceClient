@@ -18,6 +18,7 @@ public abstract class AbstractSpeechManager implements Closeable {
 
     public abstract void startSpeak(String text);
     public abstract void stopSpeak();
+    public abstract boolean isSpeaking();
     public abstract void pause();
     public abstract void resume();
 

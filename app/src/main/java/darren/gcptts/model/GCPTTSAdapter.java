@@ -39,6 +39,9 @@ public class GCPTTSAdapter extends GCPTTS implements ISpeech, GCPTTS.ISpeakListe
     }
 
     @Override
+    public boolean isSpeaking() { return super.isSpeaking(); }
+
+    @Override
     public void exit() {
         super.exit();
         removeSpeakListener(this);

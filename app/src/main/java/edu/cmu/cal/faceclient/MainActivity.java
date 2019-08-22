@@ -3,6 +3,7 @@ package edu.cmu.cal.faceclient;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -28,6 +29,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import darren.gcptts.model.SpeechManager;
 import edu.cmu.cal.cameraview.CameraView;
@@ -80,6 +83,7 @@ public class MainActivity extends ActionMenuActivity {
 
     private SpeechManager mSpeechManager;
     private GCPTTSAdapter tts;
+
     private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
@@ -101,22 +105,25 @@ public class MainActivity extends ActionMenuActivity {
                     mTakingPictureTime = (System.nanoTime() - mStartTime)/1000000000.0;
                     mShutterCount++;
                     mTakeCounter--;
-                    String str, speakStr = null;
+                    String str, speakStr = null, fn = null;
                     try {
                         JSONObject result = processPicture(cameraView, data);
                         str = faceServer.getSpeakText();
+                        fn = result.getString("filename");
                     } catch (Exception e) {
                         e.printStackTrace();
-                        speakStr = " ";//e.getMessage();
+                        speakStr = "";//e.getMessage();
                         str = e.toString();
                     }
                     if (str.isEmpty()) {
                         str = getString(R.string.no_faces);
                     } else {
                         mTakeCounter = 0;
+                        speakStr = str;
                     }
                     final String message = str;
                     final String speakMessage = speakStr;
+                    final String filename = fn;
                     mTotalTime = (System.nanoTime() - mStartTime)/1000000000.0;
                     mHandler.post(new Runnable() {
                         @Override
@@ -124,9 +131,9 @@ public class MainActivity extends ActionMenuActivity {
                             if (mTakeCounter > 0 && getCurrentMenuIndex() == 1) {
                                 mStartTime = System.nanoTime();
                                 mCameraView.takePicture();
-                                showMessage(getString(R.string.retrying), faceServer.getRetryText());
+                                showMessage(getString(R.string.retrying), faceServer.getRetryText(), filename);
                             } else {
-                                showMessage(message, speakMessage);
+                                showMessage(message, speakMessage, filename);
                                 mDetectMenu.setEnabled(true);
                                 if (getCurrentMenuIndex() == 1) {
                                     mHandler.postDelayed(repeatRunnable, faceServer.getRepeatDelay());
@@ -158,7 +165,13 @@ public class MainActivity extends ActionMenuActivity {
         mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
-                mTTS.setSpeechRate(1.75f);
+                mTTS.setSpeechRate(mSpeechRate);
+                /*
+                List<TextToSpeech.EngineInfo> engines = mTTS.getEngines();
+                for (TextToSpeech.EngineInfo engine: engines) {
+                    Log.d(TAG, String.format("label: %s, name: %s", engine.label, engine.name));
+                }
+                */
             }
         });
         takeKeyEvents(true);
@@ -297,6 +310,7 @@ public class MainActivity extends ActionMenuActivity {
             view.setTitle(title);
         }
         mSpeechRate = checked ? RATE_18 : RATE_15;
+        mTTS.setSpeechRate(mSpeechRate);
         Log.d(TAG, String.format("SpeechRate: %f", mSpeechRate));
     }
 
@@ -333,7 +347,7 @@ public class MainActivity extends ActionMenuActivity {
             }
             mStartTime = System.nanoTime();
             mCameraView.takePicture();
-            showMessage(getString(R.string.taking), faceServer.getTakingText());
+            showMessage(getString(R.string.taking), faceServer.getTakingText(), null);
         }
     }
 
@@ -341,20 +355,40 @@ public class MainActivity extends ActionMenuActivity {
         //faceServer.reset();
         //onDetectMenu(item);
         //TTS.getInstance().speak("Hello World", mSpeechRate);
-        speak("Male, 20s, 20 feet, not looking at you.");
+        speak("Male, 20s, 20 feet, not looking at you.", null);
     }
 
-    private void showMessage(String message, String speakText) {
+    private void showMessage(String message, String speakText, String filename) {
         double fps = mShutterCount / ((System.nanoTime()-mInitTime)/1000000000.0);
         mInfoView.setText(message + String.format(" TP:%.2f TT:%.2f FPS:%.2f", mTakingPictureTime, mTotalTime, fps));
         //mTTS.speak(speakText != null ? speakText : message, TextToSpeech.QUEUE_FLUSH, null, null);
         if(speakText != null && speakText.length() > 0) {
-            speak(speakText);
+            speak(speakText, filename);
         }
     }
-    private void speak(String text) {
+    private void speak(final String text, final String filename) {
 
-        mSpeechManager.stopSpeak();
+        if (mSpeechManager.isSpeaking()) {
+            return;
+        }
+
+        if (filename != null) {
+            mBackgroundHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Map<String, String> log = new HashMap<>();
+                    log.put("filename", filename);
+                    log.put("message", text);
+                    log.put("timestamp", "" + System.currentTimeMillis());
+                    log.put("type", "message");
+                    try {
+                        faceServer.writeLog(log);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
 
         String languageCode = "en-US";
         String name = "en-US-Standard-C";
